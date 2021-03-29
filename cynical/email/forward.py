@@ -36,7 +36,11 @@ def record(db, message_id, message_date, sender, receiver, subject):
     if cur.fetchone()[0] == 0:
         cur.execute('INSERT INTO sender (sender) VALUES(?)', (sender,))
 
-    # Receiver should already exists
+    # Check if Receiver exists
+    cur.execute('SELECT COUNT(receiver) FROM receiver WHERE receiver = ?', (receiver,))
+    if cur.fetchone()[0] == 0:
+        cur.execute('INSERT INTO receiver (receiver) VALUES(?)', (receiver,))
+
     # Insert message ans Update sender and receiver
     cur.execute('INSERT INTO message (message_id, message_date, sender, receiver, subject) VALUES(?, ?, ?, ?, ?)',
                 (message_id, message_date, sender, receiver, subject,))
@@ -111,6 +115,7 @@ if __name__ == '__main__':
     logger.info('Cynical Email Forward - Start')
 
     try:
+        # ToDo: config in a module
         mail_dir = os.environ.get('CYNICAL_MAILDIR')
         db = os.environ.get('CYNICAL_DB')
 
