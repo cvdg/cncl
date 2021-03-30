@@ -6,7 +6,8 @@ import pathlib
 import smtplib
 import sqlite3
 
-from cynical.common.logging import maintenance
+from cynical.common.logger import maintenance
+
 
 def is_known(db, message_id):
     known = True
@@ -64,32 +65,32 @@ def execute(maildir, db):
     backup = folder.add_folder('backup')
     delete = []
 
-    with smtplib.SMTP('localhost') as smtp:
-        for key, msg in folder.iteritems():
-            tx = email.utils.parseaddr(msg['From'])[1]
-            rx = email.utils.parseaddr(msg['To'])[1]
-            subj = msg['Subject']
-            id = msg['Message-ID']
-            date = email.utils.parsedate_to_datetime(msg['Date'])
+    for key, msg in folder.iteritems():
+        tx = email.utils.parseaddr(msg['From'])[1]
+        rx = email.utils.parseaddr(msg['To'])[1]
+        subj = msg['Subject']
+        id = msg['Message-ID']
+        date = email.utils.parsedate_to_datetime(msg['Date'])
 
-            if not is_known(db, id):
-                record(db, id, date, tx, rx, subj)
+        if not is_known(db, id):
+            record(db, id, date, tx, rx, subj)
 
-                # Workaround for TransIP
-                msg.replace_header('To', 'c.vande.griend@gmail.com')
-                msg.replace_header('From', 'cees+cynical@griend.eu')
+            # Workaround for TransIP
+            msg.replace_header('To', 'c.vande.griend@gmail.com')
+            msg.replace_header('From', 'cees+cynical@griend.eu')
 
-                logger.debug(f'Sending: {id}')
+            logger.debug(f'Sending: {id}')
+            with smtplib.SMTP('localhost') as smtp:
                 smtp.send_message(msg, from_addr='cees+cynical@griend.eu', to_addrs='c.vande.griend@gmail.com')
-                logger.info(f'Send: {id}')
-            else:
-                logger.warning(f'Duplicate message: {id}')
+            logger.info(f'Send: {id}')
+        else:
+            logger.warning(f'Duplicate message: {id}')
 
-            logger.debug(f'Backing up: {id}')
-            backup.add(msg)
-            logger.info(f'Backed up: {id}')
+        logger.debug(f'Backing up: {id}')
+        backup.add(msg)
+        logger.info(f'Backed up: {id}')
 
-            delete.append(key)
+        delete.append(key)
 
         backup.flush()
         backup.close()
