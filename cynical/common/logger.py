@@ -10,9 +10,7 @@ import pathlib
 import shutil
 import time
 
-from cynical.common.config import config
-
-def setup(loglevel=config['loglevel']):
+def setup(loglevel):
     """
     Creates a console handler with loglevel ERROR and a
     file handler with the given loglevel.

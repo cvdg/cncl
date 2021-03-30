@@ -1,12 +1,11 @@
 import email
 import logging
 import mailbox
-import os
-import pathlib
 import smtplib
 import sqlite3
 
-from cynical.common.logger import maintenance
+from cynical import config
+import cynical.common.logger
 
 
 def is_known(db, message_id):
@@ -107,35 +106,16 @@ def execute(maildir, db):
 
 
 if __name__ == '__main__':
-    '''
-    CYNICAL_MAILDIR: ~/Maildir/
-    CYNICAL_DB:      /var/opt/cynical/cynical-email.db
-                     /var/opt/cynical/cynical-email.db
-    '''
     logger = logging.getLogger(__name__)
     logger.info('Cynical Email Forward - Start')
 
     try:
-        # ToDo: config in a module
-        mail_dir = os.environ.get('CYNICAL_MAILDIR')
-        db = os.environ.get('CYNICAL_DB')
-
-        if not mail_dir:
-            home = pathlib.Path.home()
-            mail_dir = os.path.join(home, 'Maildir')
-
-        if not db:
-            db_dir = os.path.join('/var', 'opt', 'cynical')
-            db = os.path.join(db_dir, 'cynical-email.db')
-
-        if not os.path.isdir(mail_dir):
-            raise Exception('Error: {mail_dir} does not exist')
-
-        if not os.path.isfile(db):
-            raise Exception(f'Error: {db} does not exist')
+        mail_dir = config['maildir']
+        db = config['db']
 
         execute(mail_dir, db)
-        maintenance()
+
+        cynical.common.logger.maintenance()
     except Exception as e:
         logger.exception(e)
 
