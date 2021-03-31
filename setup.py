@@ -8,5 +8,5 @@ setup(
     license='GPL 3',
     author='Cees van de Griend',
     author_email='cees@griend.eu',
-    description='Cynical'
+    description='Cynical',
 )

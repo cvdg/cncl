@@ -19,6 +19,10 @@ def execute(db):
 
     cur.execute('SELECT sequence FROM sequence WHERE name = ?', (PREFIX,))
     serial = cur.fetchone()[0]
+
+    if serial < 0 or serial > 9999:
+        raise Exception(f'serial not in range: {serial}')
+
     cur.execute(
         "UPDATE sequence SET sequence = sequence + 1, date_used = (datetime('now', 'localtime')) WHERE name = ?",
         (PREFIX,))

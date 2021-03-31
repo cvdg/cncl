@@ -1,3 +1,4 @@
+import datetime
 import email
 import logging
 import mailbox
@@ -61,7 +62,8 @@ def execute(maildir, db):
     logger.debug(f'DB: {db}')
 
     folder = mailbox.Maildir(maildir)
-    backup = folder.add_folder('backup')
+    backup_name = datetime.datetime.now().strftime('backup%Ym%M')
+    backup = folder.add_folder(backup_name)
     delete = []
 
     for key, msg in folder.iteritems():
@@ -75,13 +77,13 @@ def execute(maildir, db):
             record(db, id, date, tx, rx, subj)
 
             # Workaround for TransIP
-            msg.replace_header('To', 'c.vande.griend@gmail.com')
-            msg.replace_header('From', 'cees+cynical@griend.eu')
+            # msg.replace_header('To', 'c.vande.griend@gmail.com')
+            # msg.replace_header('From', 'cees+cynical@griend.eu')
 
             logger.debug(f'Sending: {id}')
             with smtplib.SMTP('localhost') as smtp:
                 smtp.send_message(msg, from_addr='cees+cynical@griend.eu', to_addrs='c.vande.griend@gmail.com')
-            logger.info(f'Send: {id}')
+            logger.info(f'Forward: {id}')
         else:
             logger.warning(f'Duplicate message: {id}')
 
