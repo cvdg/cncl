@@ -62,7 +62,7 @@ def execute(maildir, db):
     logger.debug(f'DB: {db}')
 
     folder = mailbox.Maildir(maildir)
-    backup_name = datetime.datetime.now().strftime('backup%Ym%M')
+    backup_name = datetime.datetime.now().strftime('backup%Ym%m')
     backup = folder.add_folder(backup_name)
     delete = []
 

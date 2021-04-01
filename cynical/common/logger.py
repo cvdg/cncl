@@ -62,10 +62,10 @@ def maintenance():
                     with gzip.open(gz, 'wb') as f_out:
                         shutil.copyfileobj(f_in, f_out)
                 os.utime(gz, (mtime, mtime,))
-                logger.info('Compressed: {gz}')
-                logger.debug('Deleting: {log}')
+                logger.info(f'Compressed: {gz}')
+                logger.debug(f'Deleting: {log}')
                 os.remove(log)
-                logger.debug('Deleted: {log}')
+                logger.debug(f'Deleted: {log}')
 
     logger.debug('maintenance() - Finish')
 
